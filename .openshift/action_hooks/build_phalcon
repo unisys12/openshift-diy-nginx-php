@@ -7,9 +7,9 @@ function download_phalcon() {
 
 	# Make sure we are in the Repo Directory
 	cd ${OPENSHIFT_REPO_DIR}
-	# Download the latest version of Phalcon from Github
-	echo "Downloading most recent version PhalconPHP"
-	git clone --depth=1 git://github.com/phalcon/cphalcon.git
+	# Download Phalcon from Github
+	echo "Downloading PhalconPHP v$PHALCON_VERSION"
+	wget --output-document=./${OPENSHIFT_REPO_DIR} https://github.com/phalcon/cphalcon/archive/v${PHALCON_VERSION}.tar.gz
 	# Now we need to build it
 	build_phalcon
 
@@ -17,8 +17,6 @@ function download_phalcon() {
 
 function build_phalcon() {
 
-	# Check install file version
-	check_install_version
 	# Install PhalconPHP
 	echo "Installing Phalcon!"
 	# Change user permissions on 'install' file to allow it to be run
@@ -29,10 +27,12 @@ function build_phalcon() {
 }
 
 check_phalcon() {
-	# Check file size of install file
-	if [ -e ${install_file} ]; then
-		echo "Phalcon already downloaded, let's try to build it!"
-		build_phalcon
+
+	# Location of phalcon.so, which will only be located here if it has been built
+	local so_dir=./diy/runtime/php5/lib/php/extensions/no-debug-non-zts-20121212/
+
+	if [ -f $${so_dir}/phalcon.so ];then
+		echo "Phalcon v${PHALCON_VERSION} already installed"
 	else
 		echo "Phalcon not installed... let's do that now!"
 		download_phalcon

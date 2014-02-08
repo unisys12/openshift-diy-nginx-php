@@ -25,6 +25,8 @@ LIBTOOL_VERSION='2.4.2'
 
 NODE_VERSION='0.6.20' #'0.10.24'
 
+PHALCON_VERSION='1.2.6'
+
 declare -A PHP_PECL
 declare -A PHP_PECL_CONFIGURE
 PHP_PECL=( ["mongo"]='1.4.1' )
