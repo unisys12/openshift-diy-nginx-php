@@ -9,7 +9,7 @@ function download_phalcon() {
 	cd ${OPENSHIFT_REPO_DIR}
 	# Download Phalcon from Github
 	echo "Downloading PhalconPHP v$PHALCON_VERSION"
-	wget --output-document=./${OPENSHIFT_REPO_DIR} https://github.com/phalcon/cphalcon/archive/v${PHALCON_VERSION}.tar.gz
+	git clone https://github.com/phalcon/cphalcon.git -b ${PHALCON_VERSION}
 	# Now we need to build it
 	build_phalcon
 
