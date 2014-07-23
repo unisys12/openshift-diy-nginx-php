@@ -9,7 +9,11 @@ function download_phalcon() {
 	cd ${OPENSHIFT_REPO_DIR}
 	# Download Phalcon from Github
 	echo "Downloading PhalconPHP v$PHALCON_VERSION"
-	git clone https://github.com/phalcon/cphalcon.git -b ${PHALCON_VERSION}
+	git clone --depth=1 git://github.com/phalcon/cphalcon.git
+	
+	# This 'git' statment will be used in future releases
+	#git clone https://github.com/phalcon/cphalcon.git -b ${PHALCON_VERSION}
+	
 	# Now we need to build it
 	build_phalcon
 
@@ -28,15 +32,20 @@ function build_phalcon() {
 
 check_phalcon() {
 
-	# Location of phalcon.so, which will only be located here if it has been built
-	local so_dir=./diy/runtime/php5/lib/php/extensions/no-debug-non-zts-20121212/
-
-	if [ -f $${so_dir}/phalcon.so ];then
-		echo "Phalcon v${PHALCON_VERSION} already installed"
-	else
-		echo "Phalcon not installed... let's do that now!"
-		download_phalcon
+	dir1=$(find . -type d -maxdepth 1 -print | grep -m1 'cphalcon')
+	#echo "==> Checking for Phalcon in ${OPENSHIFT_REPO_DIR}cphalcon"
+	if [[ ! -d ${dir1} ]]; then
+		echo "==> 'cphalcon' directory could not be found"
+		download_phalcon		
+	elif 
+		cd ~
+		[[ ! -e ./diy/runtime/php5/lib/php/extensions/no-debug-non-zts-20121212/phalcon.so ]];then
+		#echo "==> Phalcon has been downloaded, but not installed yet"
+		build_phalcon
+	else 
+		echo "==> PhalconPHP already installed"
 	fi
+	exit
 
 }
 
