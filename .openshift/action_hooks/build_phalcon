@@ -1,0 +1,63 @@
+#!/bin/bash
+
+phalcon=${OPENSHIFT_REPO_DIR}/cphalcon
+install_file=${phalcon}/build/install
+
+function download_phalcon() {
+
+	# Make sure we are in the Repo Directory
+	cd ${OPENSHIFT_REPO_DIR}
+	# Download Phalcon from Github
+	echo "Downloading PhalconPHP v$PHALCON_VERSION"
+	git clone --depth=1 git://github.com/phalcon/cphalcon.git
+	
+	# This 'git' statment will be used in future releases
+	#git clone https://github.com/phalcon/cphalcon.git -b ${PHALCON_VERSION}
+	
+	# Now we need to build it
+	build_phalcon
+
+}
+
+function build_phalcon() {
+
+	# Install PhalconPHP
+	echo "Installing Phalcon!"
+	# Change user permissions on 'install' file to allow it to be run
+	chmod 700 ${phalcon}/build/install
+	# Run install file
+	${phalcon}/build/install
+
+}
+
+check_phalcon() {
+
+	dir1=$(find . -type d -maxdepth 1 -print | grep -m1 'cphalcon')
+	#echo "==> Checking for Phalcon in ${OPENSHIFT_REPO_DIR}cphalcon"
+	if [[ ! -d ${dir1} ]]; then
+		echo "==> 'cphalcon' directory could not be found"
+		download_phalcon		
+	elif 
+		cd ~
+		[[ ! -e ./diy/runtime/php5/lib/php/extensions/no-debug-non-zts-20121212/phalcon.so ]];then
+		#echo "==> Phalcon has been downloaded, but not installed yet"
+		build_phalcon
+	else 
+		echo "==> PhalconPHP already installed"
+	fi
+	exit
+
+}
+
+check_install_version() {
+
+	#check if the install file is original version
+	if [[ -n `grep -Fxq "$OPENSHIFT" ${install_file}` ]]; then
+		# Yep, so let's just move on to building phalcon
+		echo "Install file already updated!"
+	else
+		# No, this is the original version. We need to update it
+		echo "Coping new install script for Openshift"
+		cp ${OPENSHIFT_REPO_DIR}/.openshift/tmpl/install ${phalcon}/build/
+	fi
+}
